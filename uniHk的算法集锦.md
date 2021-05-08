@@ -3,18 +3,18 @@
 # 常用代码
 
 ```cpp
-#include "bits/stdc++.h"
-#define hhh cerr<<"hhh"<<endl
-#define see(x) cerr<<(#x)<<'='<<(x)<<endl
+#include <bits/stdc++.h>
+#define hhh cerr << "hhh" << endl
+#define see(x) cerr << (#x) << '=' << (x) << endl
 using namespace std;
 typedef long long ll;
 typedef long double ld;
-typedef pair<int,int> pr;
+typedef pair<int, int> pr;
 inline int read() {int x=0,f=1;char c=getchar();while(c!='-'&&c<48)c=getchar();if(c=='-')f=-1,c=getchar();while(c>47)x=x*10+(c^48),c=getchar();return f*x;}
 
 const int maxn = 3e5+7;
-const int inf = 0x3f3f3f3f;
-const int mod = 1e9+7;
+const int inf  = 0x3f3f3f3f;
+const int mod  = 1e9+7;
 
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
@@ -231,7 +231,7 @@ void getZ() {
 2. 统计每个$endpos$等价类出现位置数量时，要按长度从长到短的计算$cnt$。那为什么一定要从长到短呢？（比如回文自动机就直接是按照节点编号从大到小计算$cnt$）罪魁祸首就是复制得到的$nq$，因为它的节点编号比较大，却又要插入到节点编号比它小的$q$的头上（作为其父节点），这样就导致若按节点编号计算$cnt$，会导致某些节点入度还未减到$0$就开始更新它的父节点了。
 3. 将$q$复制一份得到$nq$后，原先的$q$就等效于被孤立了，用$nq$去代替它的所有角色（初始的$cnt$以及第一次的$endpos$值不能转移给$nq$，因为它们现在是父子关系）。
 4. 按长度排序时采用计数排序方便（用于得到第i短的状态$a[i]$）。
-5. 遇到多组数据时别忘了初始化$last$和$sz$，都为$1$。
+5. 遇到多组数据时别忘了初始化$last$和$tot$，都为$1$。
 
 ```cpp
 const int maxn = 5e5+7;
@@ -259,10 +259,10 @@ void add(int c) {
 }
 
 int main() {
-    scanf("%s", s);
+    scanf("%s", s); int n = strlen(s);
     for(int i=0; s[i]; ++i) add(s[i]-'a');
 		for(int i=1; i<=tot; ++i) c[len[i]]++;
-    for(int i=1; i<=tot; ++i) c[i]+=c[i-1];
+    for(int i=1; i<=n; ++i) c[i]+=c[i-1];
     for(int i=1; i<=tot; ++i) a[c[len[i]]--]=i;
 		for(int i=tot; i; --i) cnt[fa[a[i]]]+=cnt[a[i]];
 }
@@ -280,7 +280,7 @@ const int maxn = 4e5+7;
 char s[maxn];
 int ch[maxn*2][26], len[maxn*2], fa[maxn*2], cnt[2][maxn*2];
 int last=1, tot=1;
-int a[maxn*2], c[maxn];
+int a[maxn*2], c[maxn*2];
 
 int insert(int c, int last, int f) {
     if(ch[last][c]) {
@@ -3781,11 +3781,25 @@ $$
 求原根原理：若 $g$ 是 $m$ 的原根，当且仅当对 $\varphi(m)$ 的任意质因数 $p$ 都有 $g^{\frac{\varphi(m)}{p}}\not\equiv 1 \ (mod \ m)$，于是考虑直接暴力枚举。
 
 ```cpp
-int G=0;
-for(int i=2; i<m; ++i) {
-    int f=1;
-    for(int d: v) if(qpow(i,(m-1)/d,m)==1) { f=0; break; }
-    if(f) { G=i; break; }
+ll qpow(ll a,ll k=mod-2,ll p=mod){ll s=1;while(k){if(k&1)s=s*a%p;a=a*a%p;k>>=1;}return s;}
+
+int get_ord(int m) {
+    vector<int> v;
+    int x = m - 1, y = x; // x = phi(m)
+    for (int i = 2; i * i <= x; ++i) {
+        if (x % i == 0) {
+            v.push_back(i);
+            while (x % i == 0) x /= i;
+        }
+    }
+    if (x > 1) v.push_back(x);
+    int G = 0;
+    for (int i = 2; i < m; ++i) {
+        int f = 1;
+        for (int p: v) if (qpow(i, y / p, m) == 1) { f = 0; break; }
+        if (f) { G = i; break; }
+    }
+    return G;
 }
 ```
 
@@ -5551,7 +5565,7 @@ ll BSGS(ll a, ll b, ll mod, ll aa) {
     exgcd(aa,mod,x,y); b=(b*x%mod+mod)%mod;
     exgcd(qpow(a,p,mod),mod,x,y); x=(x+mod)%mod;
     for(ll i=1, j=0; j<=p; ++j, i=i*a%mod) if(!H.count(i)) H[i]=j;
-    for(ll i=b, j=0; j<=p; ++j, i=i*x%mod) if(H[i]) return j*p+H[i];
+    for(ll i=b, j=0; j<=p; ++j, i=i*x%mod) if(H.count(i)) return j*p+H[i];
     return -1;
 }
 
